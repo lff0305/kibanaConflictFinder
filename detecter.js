@@ -22,8 +22,11 @@ var https = require("https");
 var s = "";
 for (var i=0; i<PATTERN.length; i++) {
     if (PATTERN[i] == "*") {
-        s += ".";
-        s += PATTERN[i];
+        s += ".*";
+        continue;
+    }
+    if (PATTERN[i] == "?") {
+        s += ".?";
         continue;
     }
     s += PATTERN[i];
