@@ -8,20 +8,27 @@ var ES = "10.16.33.175";
 var PORT = 9200;
 var PATTERN = "sharpview-*";
 
-var s0 = "sharpview-2345";
-if (-1 == s0.search('/' + PATTERN + '/')) {
-    console.log("Matched");
-}
 // An object of options to indicate where to post to
 var indices = {
     host: ES ,
-    port: 9200,
+    port: PORT,
     path: "/_cat/indices",
     method: 'GET'
 };
 
 var http = require("http");
 var https = require("https");
+
+var s = "";
+for (var i=0; i<PATTERN.length; i++) {
+    if (PATTERN[i] == "*") {
+        s += ".";
+        s += PATTERN[i];
+        continue;
+    }
+    s += PATTERN[i];
+}
+var compiledPattern = new RegExp(s, "g");
 
 get = function(options, onResult)
 {
@@ -55,6 +62,11 @@ function getIndexName(line) {
 }
 
 function process(index) {
+
+    if (index.search(compiledPattern) == -1) {
+        return;
+    }
+
     get( {
         host: ES,
         port: 9200,
@@ -117,7 +129,7 @@ function audit(index, type, field, fieldType) {
 
 function check(list) {
     for (var i=0; i<list.length; i++) {
-        for (var j=0; j<list.length; j++) {
+        for (var j=0; j<i; j++) {
             if (i == j) {
                 continue;
             }
