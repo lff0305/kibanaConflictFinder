@@ -3,14 +3,36 @@
  */
 var querystring = require('querystring');
 var http = require('http');
+var process = require('process');
 
-var ES = "10.16.33.175";
-var PORT = 9200;
+var URL =  process.argv[2];
+var PATTERN = process.argv[3];
+// console.log("Elasticsearch url = " + URL);
+console.log("Index pattern = " + PATTERN);
+
+if (URL == null || PATTERN == null) {
+    console.log("Invalid parameters.");
+    console.log("Usage: node detecter.js <ELASTIC_URL> <INDEX_PATTERNS>");
+    console.log("Example: node detecter.js http://192.168.1.1:9200 index*");
+    return;
+}
+
+var pos = URL.lastIndexOf(":");
+if (pos == -1) {
+    console.log("PORT is not set");
+    return;
+}
+var protocol = URL.indexOf(":");
+var HOST = URL.substr(protocol + 3, (pos - protocol - 3));
+var PORT = URL.substr(pos + 1);
+
+console.log("Elasticsearch Host = " + HOST + ", PORT = " + PORT);
+
 var PATTERN = "sharpview-*";
 
 // An object of options to indicate where to post to
 var indices = {
-    host: ES ,
+    host: HOST ,
     port: PORT,
     path: "/_cat/indices",
     method: 'GET'
@@ -64,15 +86,15 @@ function getIndexName(line) {
     return items[2];
 }
 
-function process(index) {
+function processIndex(index) {
 
     if (index.search(compiledPattern) == -1) {
         return;
     }
 
     get( {
-        host: ES,
-        port: 9200,
+        host: HOST ,
+        port: PORT,
         path: "/" + index + "/_mappings",
         method: "GET"
     }, function(code, result) {
@@ -248,7 +270,7 @@ get(indices, function(code, obj) {
         for (var i=0; i<lines.length; i++) {
             var name = getIndexName(lines[i]);
             if (name != undefined) {
-                process(name);
+                processIndex(name);
             }
         }
     }
