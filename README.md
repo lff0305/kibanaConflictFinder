@@ -11,8 +11,9 @@ Kibana reports "Some field, conflicts detected", but it does NOT report how it i
 
 
 Usage:
-
+```
 node detect.js <Elastcisearch URL> <index patterns>
+```
 
 For exampe, 
 node detecter.js http://192.168.1.100:9200 sh*
